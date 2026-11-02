@@ -1946,7 +1946,7 @@ export function PromptInput({ channel, toastSuppressed, suspended = false, curso
      * Ordinary prose is left exactly as pasted. */
     const padPathPaste = (text) => {
         const trimmed = text.trim();
-        const pathLike = /^\[Image #\d+\]$/u.test(trimmed) || /^@?(?:\/|~\/)/u.test(trimmed);
+        const pathLike = /^\[Image #\d+\]$/u.test(trimmed) || /^@?(?:\/|~\/|file:\/\/)/u.test(trimmed);
         if (!pathLike || trimmed.includes('\n'))
             return text;
         const current = valueRef.current;
@@ -3407,6 +3407,14 @@ export function PromptInput({ channel, toastSuppressed, suspended = false, curso
         const spans = boundImageSpans(value);
         for (const span of spans)
             fill(span.start - rowStart, span.end - rowStart, CHIP);
+        // File paths are attachments too: image tokens and path references
+        // share the same low-contrast chip surface.
+        const pathPattern = /(?:^|\s)(@?(?:~|file:\/\/|\/(?:Users|Volumes|private|tmp|opt|var|etc|Applications)\/)[^\s]+)(?=\s|$)/gu;
+        for (const match of value.matchAll(pathPattern)) {
+            const pathText = match[1];
+            const start = match.index + match[0].indexOf(pathText);
+            fill(start - rowStart, start + pathText.length - rowStart, CHIP);
+        }
         const sel = selection;
         if (sel)
             fill(sel.start - rowStart, sel.end - rowStart, INVERSE);

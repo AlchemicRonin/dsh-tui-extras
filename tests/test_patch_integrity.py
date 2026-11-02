@@ -33,6 +33,11 @@ class PatchIntegrityTests(unittest.TestCase):
         self.assertIn("statusline-hint-interrupting", source)
         self.assertNotIn("statusline-hint-working", source)
 
+    def test_path_chips_are_present(self):
+        source = (PATCH / "components/PromptInput.js").read_text(encoding="utf-8")
+        self.assertIn("pathPattern", source)
+        self.assertIn("file:\\/\\/", source)
+
     def test_terminal_body_stays_capped(self):
         source = (PATCH / "components/messages/AssistantToolUseMessage.js").read_text(encoding="utf-8")
         self.assertIn("headerIsTerminal && isExpanded", source)
