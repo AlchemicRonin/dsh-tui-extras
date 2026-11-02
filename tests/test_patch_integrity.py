@@ -13,7 +13,9 @@ class PatchIntegrityTests(unittest.TestCase):
             "components/GoalTodoPanel.js",
             "components/Markdown.js",
             "components/MessageList.js",
+            "components/PromptInput.js",
             "components/messages/AssistantTextMessage.js",
+            "components/messages/AssistantToolUseMessage.js",
             "screens/StatusLine.js",
         ]
         for name in expected:
@@ -30,6 +32,14 @@ class PatchIntegrityTests(unittest.TestCase):
         source = (PATCH / "screens/StatusLine.js").read_text(encoding="utf-8")
         self.assertIn("statusline-hint-interrupting", source)
         self.assertNotIn("statusline-hint-working", source)
+
+    def test_terminal_body_stays_capped(self):
+        source = (PATCH / "components/messages/AssistantToolUseMessage.js").read_text(encoding="utf-8")
+        self.assertIn("headerIsTerminal && isExpanded", source)
+
+    def test_path_paste_padding_is_present(self):
+        source = (PATCH / "components/PromptInput.js").read_text(encoding="utf-8")
+        self.assertIn("padPathPaste", source)
 
 
 if __name__ == "__main__":
