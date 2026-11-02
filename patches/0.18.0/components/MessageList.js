@@ -613,6 +613,10 @@ export function MessageList({ rows, expanded, expandedRows, selectedId, onToggle
     const measureTimerRef = React.useRef(null);
     const [, setMeasureTick] = React.useState(0);
     const [, setScrollTick] = React.useState(0);
+    // Holding a manual viewport against tail growth: once the user scrolls
+    // up, content arriving at the bottom must not re-pin the transcript.
+    const detachedRef = React.useRef(false);
+    const lastScrollTopRef = React.useRef(null);
     React.useEffect(() => () => {
         if (measureTimerRef.current !== null) {
             clearTimeout(measureTimerRef.current);
@@ -709,8 +713,21 @@ export function MessageList({ rows, expanded, expandedRows, selectedId, onToggle
     React.useEffect(() => {
         if (!scrollHandle)
             return;
-        const tick = () => { setScrollTick(t => t + 1); };
-        return scrollHandle.subscribe(tick);
+        detachedRef.current = false;
+        lastScrollTopRef.current = null;
+        const tick = () => {
+            const top = scrollHandle.getScrollTop();
+            const max = Math.max(0, scrollHandle.getScrollHeight() - scrollHandle.getViewportHeight());
+            if (lastScrollTopRef.current !== null && top < lastScrollTopRef.current - 1)
+                detachedRef.current = true;
+            if (top >= max - 1)
+                detachedRef.current = false;
+            lastScrollTopRef.current = top;
+            setScrollTick(t => t + 1);
+        };
+        const unsubscribe = scrollHandle.subscribe(tick);
+        tick();
+        return unsubscribe;
     }, [scrollHandle]);
     // Cached rail/header preview per user row (see the timeline block for why
     // the length guard exists alongside the id key).
@@ -739,7 +756,7 @@ export function MessageList({ rows, expanded, expandedRows, selectedId, onToggle
     const scrollTopRaw = scrollHandle?.getScrollTop() ?? 0;
     const pending = scrollHandle?.getPendingDelta() ?? 0;
     const viewport = scrollHandle?.getViewportHeight() ?? 24;
-    const sticky = scrollHandle?.isSticky() ?? true;
+    const sticky = (scrollHandle?.isSticky() ?? true) && !detachedRef.current;
     const base = baseRef.current ?? DEFAULT_HEADER_LINES;
     const prevAnchor = anchorRef.current;
     let anchorCorrection = 0;
