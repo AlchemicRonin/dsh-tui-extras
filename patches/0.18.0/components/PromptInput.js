@@ -3880,7 +3880,7 @@ export function PromptInput({ channel, toastSuppressed, suspended = false, curso
     // editor layer, or external injection controller.
     if (suspended)
         return null;
-    return (_jsxs(Box, { flexDirection: "column", marginTop: 1, children: [floatersOpen && (_jsxs(OverlayAbove, { maxHeight: Math.max(terminalRows - 6, 1), children: [helpOpen && (_jsx(Box, { marginBottom: 1, children: _jsx(HelpMenu, { commands: channel.commandList, viewportHeight: helpViewportHeight, viewportWidth: columns, scrollRef: helpScrollRef, onCommandPick: (name) => {
+    return (_jsxs(Box, { flexDirection: "column", marginTop: 1, backgroundColor: "toolCardBackgroundDim", children: [floatersOpen && (_jsxs(OverlayAbove, { maxHeight: Math.max(terminalRows - 6, 1), children: [helpOpen && (_jsx(Box, { marginBottom: 1, children: _jsx(HelpMenu, { commands: channel.commandList, viewportHeight: helpViewportHeight, viewportWidth: columns, scrollRef: helpScrollRef, onCommandPick: (name) => {
                                 // 点击命令行 = 填入 /name 并关闭帮助（Tab 补全的鼠标等价）
                                 updateFoldBlock(null);
                                 // `/${name} ` — the whole fill is one undo step.
