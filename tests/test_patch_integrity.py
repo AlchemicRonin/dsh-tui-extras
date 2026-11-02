@@ -33,6 +33,11 @@ class PatchIntegrityTests(unittest.TestCase):
         self.assertIn("statusline-hint-interrupting", source)
         self.assertNotIn("statusline-hint-working", source)
 
+    def test_goal_panel_has_rail(self):
+        source = (PATCH / "components/GoalTodoPanel.js").read_text(encoding="utf-8")
+        self.assertIn("borderLeftColor", source)
+        self.assertNotIn("backgroundColor: \"toolCardBackground\"", source)
+
     def test_path_chips_are_present(self):
         source = (PATCH / "components/PromptInput.js").read_text(encoding="utf-8")
         self.assertIn("pathPattern", source)
